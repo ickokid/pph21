@@ -1,0 +1,7 @@
+{
+    "description": "Tax Income (PPH 21)",
+	"type": "project-online-pajak",
+	"require-dev": {
+        "phpunit/phpunit": "^8"
+    }
+}
