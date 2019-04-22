@@ -1,11 +1,8 @@
 <?php
-namespace PajakUnitTest;
+namespace Pajak\Tests;
 
-require_once "vendor/autoload.php";
-require_once "Pph21.php";
-
-use PHPUnit\Framework\TestCase;
 use Pajak\Pph21 as Pph21;
+use PHPUnit\Framework\TestCase;
 
 class Pph21Test extends TestCase{
 	

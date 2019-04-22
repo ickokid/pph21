@@ -1,5 +1,6 @@
 <?php
-require_once "Pph21.php";
+require_once __DIR__ . '/vendor/autoload.php'; 
+
 use Pajak\Pph21 as Pph21;
 
 $month_salary = 7800000;

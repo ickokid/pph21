@@ -107,6 +107,7 @@ class Command
         'no-configuration'          => null,
         'no-coverage'               => null,
         'no-logging'                => null,
+        'no-interaction'            => null,
         'no-extensions'             => null,
         'order-by='                 => null,
         'printer='                  => null,
@@ -159,9 +160,7 @@ class Command
      */
     public static function main(bool $exit = true): int
     {
-        $command = new static;
-
-        return $command->run($_SERVER['argv'], $exit);
+        return (new static)->run($_SERVER['argv'], $exit);
     }
 
     /**
@@ -640,6 +639,11 @@ class Command
 
                     break;
 
+                case '--no-interaction':
+                    $this->arguments['noInteraction'] = true;
+
+                    break;
+
                 case '--globals-backup':
                     $this->arguments['backupGlobals'] = true;
 
@@ -877,11 +881,7 @@ class Command
             }
 
             if (!isset($this->arguments['printer']) && isset($phpunitConfiguration['printerClass'])) {
-                if (isset($phpunitConfiguration['printerFile'])) {
-                    $file = $phpunitConfiguration['printerFile'];
-                } else {
-                    $file = '';
-                }
+                $file = $phpunitConfiguration['printerFile'] ?? '';
 
                 $this->arguments['printer'] = $this->handlePrinter(
                     $phpunitConfiguration['printerClass'],
@@ -890,11 +890,7 @@ class Command
             }
 
             if (isset($phpunitConfiguration['testSuiteLoaderClass'])) {
-                if (isset($phpunitConfiguration['testSuiteLoaderFile'])) {
-                    $file = $phpunitConfiguration['testSuiteLoaderFile'];
-                } else {
-                    $file = '';
-                }
+                $file = $phpunitConfiguration['testSuiteLoaderFile'] ?? '';
 
                 $this->arguments['loader'] = $this->handleLoader(
                     $phpunitConfiguration['testSuiteLoaderClass'],
@@ -959,9 +955,12 @@ class Command
         if (\class_exists($loaderClass, false)) {
             $class = new ReflectionClass($loaderClass);
 
-            if ($class->implementsInterface(TestSuiteLoader::class) &&
-                $class->isInstantiable()) {
-                return $class->newInstance();
+            if ($class->implementsInterface(TestSuiteLoader::class) && $class->isInstantiable()) {
+                $object = $class->newInstance();
+
+                \assert($object instanceof TestSuiteLoader);
+
+                return $object;
             }
         }
 
@@ -1121,9 +1120,7 @@ class Command
 
     private function handleExtensions(string $directory): void
     {
-        $facade = new FileIteratorFacade;
-
-        foreach ($facade->getFilesAsArray($directory, '.phar') as $file) {
+        foreach ((new FileIteratorFacade)->getFilesAsArray($directory, '.phar') as $file) {
             if (!\file_exists('phar://' . $file . '/manifest.xml')) {
                 $this->arguments['notLoadedExtensions'][] = $file . ' is not an extension for PHPUnit';
 
@@ -1194,9 +1191,7 @@ class Command
             $this->arguments['configuration']
         );
 
-        $suiteNames = $configuration->getTestSuiteNames();
-
-        foreach ($suiteNames as $suiteName) {
+        foreach ($configuration->getTestSuiteNames() as $suiteName) {
             \printf(
                 ' - %s' . \PHP_EOL,
                 $suiteName

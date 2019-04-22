@@ -186,24 +186,22 @@ final class PhptTestCase implements Test, SelfDescribing
 
             if ($xfail !== false) {
                 $failure = new IncompleteTestError($xfail, 0, $e);
-            } else {
-                if ($e instanceof ExpectationFailedException) {
-                    if ($e->getComparisonFailure()) {
-                        $diff = $e->getComparisonFailure()->getDiff();
-                    } else {
-                        $diff = $e->getMessage();
-                    }
-
-                    $hint    = $this->getLocationHintFromDiff($diff, $sections);
-                    $trace   = \array_merge($hint, \debug_backtrace(\DEBUG_BACKTRACE_IGNORE_ARGS));
-                    $failure = new PHPTAssertionFailedError(
-                        $e->getMessage(),
-                        0,
-                        $trace[0]['file'],
-                        $trace[0]['line'],
-                        $trace
-                    );
+            } elseif ($e instanceof ExpectationFailedException) {
+                if ($e->getComparisonFailure()) {
+                    $diff = $e->getComparisonFailure()->getDiff();
+                } else {
+                    $diff = $e->getMessage();
                 }
+
+                $hint    = $this->getLocationHintFromDiff($diff, $sections);
+                $trace   = \array_merge($hint, \debug_backtrace(\DEBUG_BACKTRACE_IGNORE_ARGS));
+                $failure = new PHPTAssertionFailedError(
+                    $e->getMessage(),
+                    0,
+                    $trace[0]['file'],
+                    $trace[0]['line'],
+                    $trace
+                );
             }
 
             $result->addFailure($this, $failure, $time);
@@ -211,7 +209,7 @@ final class PhptTestCase implements Test, SelfDescribing
             $result->addError($this, $t, $time);
         }
 
-        if ($result->allCompletelyImplemented() && $xfail !== false) {
+        if ($xfail !== false && $result->allCompletelyImplemented()) {
             $result->addFailure($this, new IncompleteTestError('XFAIL section but test passes'), $time);
         }
 
@@ -648,13 +646,13 @@ final class PhptTestCase implements Test, SelfDescribing
             }
 
             if ($block === 'diff') {
-                if (\substr($line, 0, 1) === '+') {
+                if (\strpos($line, '+') === 0) {
                     $needle = $this->getCleanDiffLine($previousLine);
 
                     break;
                 }
 
-                if (\substr($line, 0, 1) === '-') {
+                if (\strpos($line, '-') === 0) {
                     $needle = $this->getCleanDiffLine($line);
 
                     break;
@@ -723,9 +721,7 @@ final class PhptTestCase implements Test, SelfDescribing
             $sectionOffset = $sections[$section . '_offset'] ?? 0;
             $offset        = $sectionOffset + 1;
 
-            $lines = \preg_split('/\r\n|\r|\n/', $sections[$section]);
-
-            foreach ($lines as $line) {
+            foreach (\preg_split('/\r\n|\r|\n/', $sections[$section]) as $line) {
                 if (\strpos($line, $needle) !== false) {
                     return [[
                         'file' => \realpath($this->filename),

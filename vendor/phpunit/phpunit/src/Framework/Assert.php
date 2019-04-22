@@ -187,15 +187,15 @@ abstract class Assert
             self::createWarning('Using assertContains() with string haystacks is deprecated and will not be supported in PHPUnit 9. Refactor your test to use assertStringContainsString() or assertStringContainsStringIgnoringCase() instead.');
         }
 
-        if ($checkForObjectIdentity !== true) {
+        if (!$checkForObjectIdentity) {
             self::createWarning('The optional $checkForObjectIdentity parameter of assertContains() is deprecated and will be removed in PHPUnit 9. Refactor your test to use assertContainsEquals() instead.');
         }
 
-        if ($checkForNonObjectIdentity !== false) {
+        if ($checkForNonObjectIdentity) {
             self::createWarning('The optional $checkForNonObjectIdentity parameter of assertContains() is deprecated and will be removed in PHPUnit 9.');
         }
 
-        if ($ignoreCase !== false) {
+        if ($ignoreCase) {
             self::createWarning('The optional $ignoreCase parameter of assertContains() is deprecated and will be removed in PHPUnit 9.');
         }
         // @codeCoverageIgnoreEnd
@@ -278,15 +278,15 @@ abstract class Assert
             self::createWarning('Using assertNotContains() with string haystacks is deprecated and will not be supported in PHPUnit 9. Refactor your test to use assertStringNotContainsString() or assertStringNotContainsStringIgnoringCase() instead.');
         }
 
-        if ($checkForObjectIdentity !== true) {
+        if (!$checkForObjectIdentity) {
             self::createWarning('The optional $checkForObjectIdentity parameter of assertNotContains() is deprecated and will be removed in PHPUnit 9. Refactor your test to use assertNotContainsEquals() instead.');
         }
 
-        if ($checkForNonObjectIdentity !== false) {
+        if ($checkForNonObjectIdentity) {
             self::createWarning('The optional $checkForNonObjectIdentity parameter of assertNotContains() is deprecated and will be removed in PHPUnit 9.');
         }
 
-        if ($ignoreCase !== false) {
+        if ($ignoreCase) {
             self::createWarning('The optional $ignoreCase parameter of assertNotContains() is deprecated and will be removed in PHPUnit 9.');
         }
         // @codeCoverageIgnoreEnd
@@ -589,11 +589,11 @@ abstract class Assert
             self::createWarning('The optional $maxDepth parameter of assertEquals() is deprecated and will be removed in PHPUnit 9.');
         }
 
-        if ($canonicalize !== false) {
+        if ($canonicalize) {
             self::createWarning('The optional $canonicalize parameter of assertEquals() is deprecated and will be removed in PHPUnit 9. Refactor your test to use assertEqualsCanonicalizing() instead.');
         }
 
-        if ($ignoreCase !== false) {
+        if ($ignoreCase) {
             self::createWarning('The optional $ignoreCase parameter of assertEquals() is deprecated and will be removed in PHPUnit 9. Refactor your test to use assertEqualsIgnoringCase() instead.');
         }
         // @codeCoverageIgnoreEnd
@@ -713,11 +713,11 @@ abstract class Assert
             self::createWarning('The optional $maxDepth parameter of assertNotEquals() is deprecated and will be removed in PHPUnit 9.');
         }
 
-        if ($canonicalize !== false) {
+        if ($canonicalize) {
             self::createWarning('The optional $canonicalize parameter of assertNotEquals() is deprecated and will be removed in PHPUnit 9. Refactor your test to use assertNotEqualsCanonicalizing() instead.');
         }
 
-        if ($ignoreCase !== false) {
+        if ($ignoreCase) {
             self::createWarning('The optional $ignoreCase parameter of assertNotEquals() is deprecated and will be removed in PHPUnit 9. Refactor your test to use assertNotEqualsIgnoringCase() instead.');
         }
         // @codeCoverageIgnoreEnd
@@ -1423,7 +1423,7 @@ abstract class Assert
      */
     public static function assertClassHasAttribute(string $attributeName, string $className, string $message = ''): void
     {
-        if (!self::isValidAttributeName($attributeName)) {
+        if (!self::isValidClassAttributeName($attributeName)) {
             throw InvalidArgumentHelper::factory(1, 'valid attribute name');
         }
 
@@ -1443,7 +1443,7 @@ abstract class Assert
      */
     public static function assertClassNotHasAttribute(string $attributeName, string $className, string $message = ''): void
     {
-        if (!self::isValidAttributeName($attributeName)) {
+        if (!self::isValidClassAttributeName($attributeName)) {
             throw InvalidArgumentHelper::factory(1, 'valid attribute name');
         }
 
@@ -1469,7 +1469,7 @@ abstract class Assert
      */
     public static function assertClassHasStaticAttribute(string $attributeName, string $className, string $message = ''): void
     {
-        if (!self::isValidAttributeName($attributeName)) {
+        if (!self::isValidClassAttributeName($attributeName)) {
             throw InvalidArgumentHelper::factory(1, 'valid attribute name');
         }
 
@@ -1493,7 +1493,7 @@ abstract class Assert
      */
     public static function assertClassNotHasStaticAttribute(string $attributeName, string $className, string $message = ''): void
     {
-        if (!self::isValidAttributeName($attributeName)) {
+        if (!self::isValidClassAttributeName($attributeName)) {
             throw InvalidArgumentHelper::factory(1, 'valid attribute name');
         }
 
@@ -1521,7 +1521,7 @@ abstract class Assert
      */
     public static function assertObjectHasAttribute(string $attributeName, $object, string $message = ''): void
     {
-        if (!self::isValidAttributeName($attributeName)) {
+        if (!self::isValidObjectAttributeName($attributeName)) {
             throw InvalidArgumentHelper::factory(1, 'valid attribute name');
         }
 
@@ -1547,7 +1547,7 @@ abstract class Assert
      */
     public static function assertObjectNotHasAttribute(string $attributeName, $object, string $message = ''): void
     {
-        if (!self::isValidAttributeName($attributeName)) {
+        if (!self::isValidObjectAttributeName($attributeName)) {
             throw InvalidArgumentHelper::factory(1, 'valid attribute name');
         }
 
@@ -3031,7 +3031,7 @@ abstract class Assert
     {
         self::createWarning('readAttribute() is deprecated and will be removed in PHPUnit 9.');
 
-        if (!self::isValidAttributeName($attributeName)) {
+        if (!self::isValidClassAttributeName($attributeName)) {
             throw InvalidArgumentHelper::factory(2, 'valid attribute name');
         }
 
@@ -3080,7 +3080,7 @@ abstract class Assert
             throw InvalidArgumentHelper::factory(1, 'class name');
         }
 
-        if (!self::isValidAttributeName($attributeName)) {
+        if (!self::isValidClassAttributeName($attributeName)) {
             throw InvalidArgumentHelper::factory(2, 'valid attribute name');
         }
 
@@ -3123,7 +3123,7 @@ abstract class Assert
             throw InvalidArgumentHelper::factory(1, 'object');
         }
 
-        if (!self::isValidAttributeName($attributeName)) {
+        if (!self::isValidClassAttributeName($attributeName)) {
             throw InvalidArgumentHelper::factory(2, 'valid attribute name');
         }
 
@@ -3225,7 +3225,12 @@ abstract class Assert
         return $hint;
     }
 
-    private static function isValidAttributeName(string $attributeName): bool
+    private static function isValidObjectAttributeName(string $attributeName): bool
+    {
+        return (bool) \preg_match('/[^\x00-\x1f\x7f-\x9f]+/', $attributeName);
+    }
+
+    private static function isValidClassAttributeName(string $attributeName): bool
     {
         return (bool) \preg_match('/[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*/', $attributeName);
     }
